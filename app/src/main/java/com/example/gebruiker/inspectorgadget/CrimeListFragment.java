@@ -1,22 +1,36 @@
 package com.example.gebruiker.inspectorgadget;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import com.example.gebruiker.inspectorgadget.database.Crime;
+import com.example.gebruiker.inspectorgadget.service.CrimeLab;
+import com.example.gebruiker.inspectorgadget.utils.KillableRunnable;
+
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 public class CrimeListFragment extends Fragment {
 
@@ -142,29 +156,33 @@ public class CrimeListFragment extends Fragment {
         updateSubtitle();
     }
 
-    private class CrimeHolder extends RecyclerView.ViewHolder 
-            implements View.OnClickListener {
+   class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private TextView mTitleTextView;
-        private TextView mDateTextView;
-        private CheckBox mSolvedCheckBox;
+        @Bind(R.id.list_item_crime_title_text_view)
+        TextView mTitleTextView;
+        @Bind(R.id.list_item_crime_date_text_view)
+        TextView mDateTextView;
+        @Bind(R.id.list_item_crime_solved_check_box)
+        CheckBox mSolvedCheckBox;
 
         private Crime mCrime;
 
         public CrimeHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
-
-            mTitleTextView = (TextView) itemView.findViewById(R.id.list_item_crime_title_text_view);
-            mDateTextView = (TextView) itemView.findViewById(R.id.list_item_crime_date_text_view);
-            mSolvedCheckBox = (CheckBox) itemView.findViewById(R.id.list_item_crime_solved_check_box);
         }
 
         public void bindCrime(Crime crime) {
             mCrime = crime;
             mTitleTextView.setText(mCrime.getTitle());
             mDateTextView.setText(mCrime.getDate().toString());
-            mSolvedCheckBox.setChecked(mCrime.isSolved());
+            mSolvedCheckBox.setChecked(mCrime.getSolved());
+
+            mSolvedCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                mCrime.setSolved(isChecked);
+                CrimeLab.get(getContext()).updateCrime(mCrime);
+            });
         }
 
         @Override
@@ -176,16 +194,55 @@ public class CrimeListFragment extends Fragment {
     private class CrimeAdapter extends RecyclerView.Adapter<CrimeHolder> {
 
         private List<Crime> mCrimes;
+        private ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                final int TIMEOUT = 2000;
+
+                int pos = viewHolder.getAdapterPosition();
+                Crime crime = mCrimes.get(pos);
+
+                mCrimes.remove(pos);
+                notifyItemRemoved(pos);
+
+                final KillableRunnable runnable = new KillableRunnable() {
+                    @Override
+                    public void doWork() {
+                        CrimeLab.get(getContext()).removeCrime(crime);
+                    }
+                };
+
+                viewHolder.itemView.postDelayed(runnable, TIMEOUT);
+
+                Snackbar snackbar = Snackbar.make(viewHolder.itemView, R.string.deleted, Snackbar.LENGTH_INDEFINITE);
+
+                //noinspection ResourceType
+                snackbar.setDuration(TIMEOUT);
+
+                snackbar.setAction(R.string.undo, v -> {
+                    runnable.kill();
+                    mCrimes.add(pos, crime);
+                    notifyItemInserted(pos);
+                });
+
+                snackbar.show();
+            }
+        };
 
         public CrimeAdapter(List<Crime> crimes) {
             mCrimes = crimes;
+
+            new ItemTouchHelper(callback).attachToRecyclerView(mCrimeRecyclerView);
         }
 
         @Override
         public CrimeHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-            View view = layoutInflater.inflate(R.layout.list_item_crime, parent, false);
-            return new CrimeHolder(view);
+            return new CrimeHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_crime, parent, false));
         }
 
         @Override

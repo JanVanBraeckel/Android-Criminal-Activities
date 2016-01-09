@@ -1,4 +1,4 @@
-package com.example.gebruiker.inspectorgadget;
+package com.example.gebruiker.inspectorgadget.components;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -10,6 +10,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.DatePicker;
+
+import com.example.gebruiker.inspectorgadget.R;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -53,17 +55,13 @@ public class DatePickerFragment extends DialogFragment {
                 .setView(v)
                 .setTitle(R.string.date_picker_title)
                 .setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                int year = mDatePicker.getYear();
-                                int month = mDatePicker.getMonth();
-                                int day = mDatePicker.getDayOfMonth();
-                                Date date = new GregorianCalendar(year, month, day).getTime();
-                                sendResult(Activity.RESULT_OK, date);
-                            }
-                })
-                .create();
+                        (dialog, which) -> {
+                            int year1 = mDatePicker.getYear();
+                            int month1 = mDatePicker.getMonth();
+                            int day1 = mDatePicker.getDayOfMonth();
+                            Date date1 = new GregorianCalendar(year1, month1, day1).getTime();
+                            sendResult(Activity.RESULT_OK, date1);
+                        }).create();
     }
 
     private void sendResult(int resultCode, Date date) {
@@ -74,7 +72,6 @@ public class DatePickerFragment extends DialogFragment {
         Intent intent = new Intent();
         intent.putExtra(EXTRA_DATE, date);
 
-        getTargetFragment()
-                .onActivityResult(getTargetRequestCode(), resultCode, intent);
+        getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, intent);
     }
 }

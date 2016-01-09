@@ -11,7 +11,8 @@
         android:orientation="vertical"
         android:layout_marginRight="4dp"
         >
-        <ImageView android:id="@+id/crime_photo"
+        <com.example.gebruiker.inspectorgadget.components.TouchHighlightImageButton
+                    android:id="@+id/crime_photo"
                    android:layout_width="80dp"
                    android:layout_height="80dp"
                    android:scaleType="centerInside"

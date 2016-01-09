@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/InspectorGadget.iml" filepath="$PROJECT_DIR$/InspectorGadget.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidDetective.iml" filepath="$PROJECT_DIR$/AndroidDetective.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/crimedaogenerator/crimedaogenerator.iml" filepath="$PROJECT_DIR$/crimedaogenerator/crimedaogenerator.iml" />
     </modules>
   </component>
 </project>
