@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 public abstract class SingleFragmentActivity extends AppCompatActivity {
+    public static String FRAGMENT_TAG = "single_fragment";
 
     protected abstract Fragment createFragment();
 
@@ -27,7 +28,7 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
         if (fragment == null) {
             fragment = createFragment();
             fm.beginTransaction()
-                    .add(R.id.fragment_container, fragment)
+                    .add(R.id.fragment_container, fragment, FRAGMENT_TAG)
                     .commit();
         }
     }

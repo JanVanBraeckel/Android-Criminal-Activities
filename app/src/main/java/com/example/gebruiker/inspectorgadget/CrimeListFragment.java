@@ -25,21 +25,25 @@ import android.widget.TextView;
 
 import com.example.gebruiker.inspectorgadget.database.Crime;
 import com.example.gebruiker.inspectorgadget.service.CrimeLab;
+import com.example.gebruiker.inspectorgadget.service.ICrimeLab;
 import com.example.gebruiker.inspectorgadget.utils.KillableRunnable;
 
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
 
 public class CrimeListFragment extends Fragment {
 
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
 
-    private RecyclerView mCrimeRecyclerView;
+    @Bind(R.id.crime_recycler_view)
+    RecyclerView mCrimeRecyclerView;
     private CrimeAdapter mAdapter;
     private boolean mSubtitleVisible;
-    private Callbacks mCallbacks;
+    Callbacks mCallbacks;
 
     /**
      * Required interface for hosting activities.
@@ -65,8 +69,8 @@ public class CrimeListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_crime_list, container, false);
 
-        mCrimeRecyclerView = (RecyclerView) view
-                .findViewById(R.id.crime_recycler_view);
+        ButterKnife.bind(this,view);
+
         mCrimeRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         if (savedInstanceState != null) {
@@ -129,7 +133,7 @@ public class CrimeListFragment extends Fragment {
     }
 
     private void updateSubtitle() {
-        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        ICrimeLab crimeLab = CrimeLab.get(getActivity());
         int crimeCount = crimeLab.getCrimes().size();
         String subtitle = getString(R.string.subtitle_format, crimeCount);
 
@@ -142,7 +146,7 @@ public class CrimeListFragment extends Fragment {
     }
 
     public void updateUI() {
-        CrimeLab crimeLab = CrimeLab.get(getActivity());
+        ICrimeLab crimeLab = CrimeLab.get(getActivity());
         List<Crime> crimes = crimeLab.getCrimes();
 
         if (mAdapter == null) {
@@ -156,7 +160,7 @@ public class CrimeListFragment extends Fragment {
         updateSubtitle();
     }
 
-   class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class CrimeHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @Bind(R.id.list_item_crime_title_text_view)
         TextView mTitleTextView;
@@ -178,11 +182,12 @@ public class CrimeListFragment extends Fragment {
             mTitleTextView.setText(mCrime.getTitle());
             mDateTextView.setText(mCrime.getDate().toString());
             mSolvedCheckBox.setChecked(mCrime.getSolved());
+        }
 
-            mSolvedCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                mCrime.setSolved(isChecked);
-                CrimeLab.get(getContext()).updateCrime(mCrime);
-            });
+        @OnCheckedChanged(R.id.list_item_crime_solved_check_box)
+        public void crimeSolvedChecked(boolean checked) {
+            mCrime.setSolved(checked);
+            CrimeLab.get(getContext()).updateCrime(mCrime);
         }
 
         @Override

@@ -14,12 +14,17 @@ import com.example.gebruiker.inspectorgadget.service.CrimeLab;
 
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnPageChange;
+
 public class CrimePagerActivity extends AppCompatActivity
         implements CrimeFragment.Callbacks {
     private static final String EXTRA_CRIME_ID =
-            "com.bignerdranch.android.criminalintent.crime_id";
+            "com.example.gebruiker.inspectorgadget.crime_id";
 
-    private ViewPager mViewPager;
+    @Bind(R.id.activity_crime_pager_view_pager)
+    ViewPager mViewPager;
     private List<Crime> mCrimes;
 
     public static Intent newIntent(Context packageContext, long crimeId) {
@@ -33,10 +38,10 @@ public class CrimePagerActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_crime_pager);
 
+        ButterKnife.bind(this);
+
         long crimeId = (long) getIntent()
                 .getSerializableExtra(EXTRA_CRIME_ID);
-
-        mViewPager = (ViewPager) findViewById(R.id.activity_crime_pager_view_pager);
 
         mCrimes = CrimeLab.get(this).getCrimes();
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -54,27 +59,19 @@ public class CrimePagerActivity extends AppCompatActivity
             }
         });
 
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
-
-            @Override
-            public void onPageSelected(int position) {
-                Crime crime = mCrimes.get(position);
-                if (crime.getTitle() != null) {
-                    setTitle(crime.getTitle());
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) { }
-        });
-
         for (int i = 0; i < mCrimes.size(); i++) {
             if (mCrimes.get(i).getId().equals(crimeId)) {
                 mViewPager.setCurrentItem(i);
                 break;
             }
+        }
+    }
+
+    @OnPageChange(R.id.activity_crime_pager_view_pager)
+    public void onPageSelectedListener(int position){
+        Crime crime = mCrimes.get(position);
+        if (crime.getTitle() != null) {
+            setTitle(crime.getTitle());
         }
     }
 

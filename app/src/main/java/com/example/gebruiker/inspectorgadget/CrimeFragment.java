@@ -45,6 +45,7 @@ import butterknife.OnTextChanged;
 
 public class CrimeFragment extends Fragment {
 
+    public static final String TAG = "CrimeFragment";
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
 
@@ -132,6 +133,8 @@ public class CrimeFragment extends Fragment {
 
         mShortAnimationDuration = getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
+
+        mSuspectButton.setText(mCrime.getSuspect());
 
         return v;
     }
@@ -231,8 +234,7 @@ public class CrimeFragment extends Fragment {
             // Perform your query - the contactUri is like a "where"
             // clause here
             ContentResolver resolver = getActivity().getContentResolver();
-            Cursor c = resolver
-                    .query(contactUri, queryFields, null, null, null);
+            Cursor c = resolver.query(contactUri, queryFields, null, null, null);
 
             try {
                 // Double-check that you actually got results

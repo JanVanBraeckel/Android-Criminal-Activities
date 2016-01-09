@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 
 import com.example.gebruiker.inspectorgadget.database.Crime;
 
+import butterknife.ButterKnife;
+
 public class CrimeListActivity extends SingleFragmentActivity implements CrimeListFragment.Callbacks, CrimeFragment.Callbacks {
 
     @Override
@@ -19,7 +21,7 @@ public class CrimeListActivity extends SingleFragmentActivity implements CrimeLi
 
     @Override
     public void onCrimeSelected(Crime crime) {
-        if (findViewById(R.id.detail_fragment_container) == null) {
+        if (ButterKnife.findById(this, R.id.detail_fragment_container) == null) {
             Intent intent = CrimePagerActivity.newIntent(this, crime.getId());
             startActivity(intent);
         } else {

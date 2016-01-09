@@ -13,17 +13,21 @@ import com.example.gebruiker.inspectorgadget.database.DaoSession;
 import java.io.File;
 import java.util.List;
 
-public class CrimeLab {
-    private static CrimeLab sCrimeLab;
+public class CrimeLab implements ICrimeLab {
+    private static ICrimeLab sCrimeLab;
 
     private Context mContext;
     private CrimeDao mCrimeDao;
 
-    public static CrimeLab get(Context context) {
+    public static ICrimeLab get(Context context) {
         if (sCrimeLab == null) {
             sCrimeLab = new CrimeLab(context);
         }
         return sCrimeLab;
+    }
+
+    public static void setTestingInstance(ICrimeLab crimeLab){
+        sCrimeLab = crimeLab;
     }
 
     private CrimeLab(Context context) {
@@ -40,26 +44,30 @@ public class CrimeLab {
         mCrimeDao = daoSession.getCrimeDao();
     }
 
-
+    @Override
     public void addCrime(Crime c) {
         mCrimeDao.insert(c);
     }
 
+    @Override
     public List<Crime> getCrimes() {
         return mCrimeDao.queryBuilder()
                 .list();
     }
 
+    @Override
     public Crime getCrime(long id) {
         return mCrimeDao.queryBuilder()
                 .where(CrimeDao.Properties.Id.eq(id))
                 .unique();
     }
 
+    @Override
     public void updateCrime(Crime crime) {
         mCrimeDao.update(crime);
     }
 
+    @Override
     public void removeCrime(Crime crime) {
         mCrimeDao.delete(crime);
     }
