@@ -134,7 +134,8 @@ public class CrimeFragment extends Fragment {
         mShortAnimationDuration = getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
 
-        mSuspectButton.setText(mCrime.getSuspect());
+        if (mCrime.getSuspect() != null && !mCrime.getSuspect().isEmpty())
+            mSuspectButton.setText(mCrime.getSuspect());
 
         return v;
     }
